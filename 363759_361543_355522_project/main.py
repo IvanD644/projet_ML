@@ -37,33 +37,41 @@ def main(args):
     ##TODO: ctrain and ctest are for regression task. (To be used for Linear Regression and KNN)
     ##TODO: xtrain, xtest, ytrain, ytest are for classification task. (To be used for Logistic Regression and KNN)
 
-
-
     ## 2. Then we must prepare it. This is were you can create a validation set,
     #  normalize, add bias, etc.
 
+    # TODO: Do we need to shuffle?
+
+    # Normalization.
+    cmeans, cstds = np.mean(ctrain, axis = 0), np.std(ctrain, axis = 0)
+    ctrain, ctest = normalize_fn(ctrain, cmeans, cstds), normalize_fn(ctest, cmeans, cstds)
+
+    xmeans, xstds = np.mean(xtrain, axis = 0), np.std(xtrain, axis = 0)
+    ymeans, ystds = np.std(ytrain, axis = 0), np.std(ytrain, axis = 0)
+    xtrain, xtest = normalize_fn(xtrain, xmeans, xstds), normalize_fn(xtest, xmeans, xstds)
+    ytrain, ytest = normalize_fn(ytrain, ymeans, ystds), normalize_fn(ytest, ymeans, ystds)
+
+    # Bias term addition.
+    ctrain, ctest = append_bias_term(ctrain), append_bias_term(ctest)
+    xtrain, xtest = append_bias_term(xtrain), append_bias_term(xtest)
+
     # Make a validation set (it can overwrite xtest, ytest)
     if not args.test:
-        ### WRITE YOUR CODE HERE
+        # TODO
         pass
     
-    ### WRITE YOUR CODE HERE to do any other data processing
-
     
-
     ## 3. Initialize the method you want to use.
 
     # Use NN (FOR MS2!)
-    if args.method == "nn":
+    if args.method == "nn" or args.method == "linear_regression" or args.method == "logistic_regression" or args.method == "knn":
         raise NotImplementedError("This will be useful for MS2.")
 
     # Follow the "DummyClassifier" example for your methods
-    if args.method == "dummy_classifier":
+    elif args.method == "dummy_classifier":
         method_obj = DummyClassifier(arg1=1, arg2=2)
-
-    elif ...:  ### WRITE YOUR CODE HERE
-        pass
-
+    else:
+        raise NotImplementedError()
 
     ## 4. Train and evaluate the method
 
