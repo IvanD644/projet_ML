@@ -1,4 +1,5 @@
 import numpy as np
+import heapq
 
 class KNN(object):
     """
@@ -11,6 +12,8 @@ class KNN(object):
         """
         self.k = k
         self.task_kind =task_kind
+        self.training_data = None
+        self.training_labels = None
 
     def fit(self, training_data, training_labels):
         """
@@ -27,12 +30,9 @@ class KNN(object):
                 pred_labels (np.array): labels of shape (N,)
         """
 
-        ##
-        ###
-        #### YOUR CODE HERE!
-        ###
-        ##
-        return pred_labels
+        self.training_data = training_data
+        self.training_labels = training_labels
+        return self.predict(self.training_data)
 
     def predict(self, test_data):
         """
@@ -43,9 +43,35 @@ class KNN(object):
             Returns:
                 test_labels (np.array): labels of shape (N,)
         """
-        ##
-        ###
-        #### YOUR CODE HERE!
-        ###
-        ##
+        # TODO Vectorize predictors.
+        def predict_classification(neighbours_labels):
+            print(neighbours_labels)
+            return np.argmax(np.bincount(neighbours_labels))
+        
+        def predict_regression(neighbours_labels):
+            return np.mean(neighbours_labels)
+        
+        predict = \
+            predict_classification if self.task_kind == "classification" \
+            else predict_regression
+        
+        test_labels = np.zeros(test_data.shape[0])
+        
+        for test_index, test_entry in enumerate(test_data):
+            distances = np.sum(
+                (self.training_data - test_entry) ** 2,
+                axis=1
+            )
+            distances_with_labels = zip(distances, self.training_labels)
+
+            # Using a heap here has the best time complexity
+            # for extracting closest neighbours.
+            neighbours_labels = np.array(list(map(
+                lambda distance_with_label : distance_with_label[1],
+                heapq.nsmallest(self.k, distances_with_labels)
+            )))
+            
+            test_labels[test_index] = predict(neighbours_labels)
+            
         return test_labels
+    
