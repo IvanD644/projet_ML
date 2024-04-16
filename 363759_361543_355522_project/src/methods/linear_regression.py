@@ -34,8 +34,8 @@ class LinearRegression(object):
         ###
         ##
         self.N = training_data.shape[0]
-        self.D = training_data[0].shape[0]
-        self.C = training_labels[0].shape[0]
+        self.D = training_data.reshape((self.N, -1)).shape[-1]
+        self.C = training_labels.reshape((self.N, -1)).shape[-1]
         I = np.eye(self.D)
         inverse = np.linalg.inv(training_data.T @ training_data + I * self.lmda)
         self.weights = inverse @ training_data.T @ training_labels
