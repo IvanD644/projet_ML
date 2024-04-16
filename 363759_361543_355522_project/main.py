@@ -64,9 +64,15 @@ def main(args):
     ## 3. Initialize the method you want to use.
 
     # Use NN (FOR MS2!)
-    if args.method == "nn" or args.method == "linear_regression" or args.method == "logistic_regression" or args.method == "knn":
-        raise NotImplementedError("This will be useful for MS2.")
 
+    if args.method == "nn":
+        raise NotImplementedError("This will be useful for MS2.")
+    elif args.method == "linear_regression":
+        method_obj = LinearRegression(args.lmda)
+    elif args.method == "logistic_regression":
+        method_obj = LogisticRegression(args.lr, args.max_iters)
+    elif args.method == "knn":
+        method_obj = KNN(args.K, args.task)
     # Follow the "DummyClassifier" example for your methods
     elif args.method == "dummy_classifier":
         method_obj = DummyClassifier(arg1=1, arg2=2)
