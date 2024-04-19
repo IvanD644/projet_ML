@@ -42,22 +42,17 @@ def main(args):
     # TODO: Do we need to shuffle?
 
     # Normalization.
-    cmeans, cstds = np.mean(ctrain, axis = 0), np.std(ctrain, axis = 0)
-    ctrain, ctest = normalize_fn(ctrain, cmeans, cstds), normalize_fn(ctest, cmeans, cstds)
 
     xmeans, xstds = np.mean(xtrain, axis = 0), np.std(xtrain, axis = 0)
-    ymeans, ystds = np.std(ytrain, axis = 0), np.std(ytrain, axis = 0)
     xtrain, xtest = normalize_fn(xtrain, xmeans, xstds), normalize_fn(xtest, xmeans, xstds)
-    ytrain, ytest = normalize_fn(ytrain, ymeans, ystds), normalize_fn(ytest, ymeans, ystds)
 
     # Bias term addition.
-    ctrain, ctest = append_bias_term(ctrain), append_bias_term(ctest)
     xtrain, xtest = append_bias_term(xtrain), append_bias_term(xtest)
 
     # Make a validation set (it can overwrite xtest, ytest)
     if not args.test:
         validation_ratio = .3
-        validation_size = validation_ratio * xtest.shape[0]
+        validation_size = int(validation_ratio * xtest.shape[0])
         xtest = xtrain[-validation_size:]
         xtrain = xtrain[:-validation_size]
         ytest = ytrain[-validation_size:]
