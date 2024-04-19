@@ -6,7 +6,7 @@ class KNN(object):
         kNN classifier object.
     """
 
-    def __init__(self, k=1, task_kind = "classification"):
+    def __init__(self, k=1, task_kind = "breed_identifying"):
         """
             Call set_arguments function of this class.
         """
@@ -52,7 +52,7 @@ class KNN(object):
             return np.mean(neighbours_labels)
         
         predict = \
-            predict_classification if self.task_kind == "classification" \
+            predict_classification if self.task_kind == "breed_identifying" \
             else predict_regression
         
         test_labels = np.zeros(test_data.shape[0])
