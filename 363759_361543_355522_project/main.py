@@ -86,11 +86,10 @@ def main(args):
         preds_train = method_obj.fit(xtrain, ctrain)
 
         # Perform inference for training and test data
-        train_pred = method_obj.predict(xtrain)
         preds = method_obj.predict(xtest)
 
         ## Report results: performance on train and valid/test sets
-        train_loss = mse_fn(train_pred, ctrain)
+        train_loss = mse_fn(preds_train, ctrain)
         loss = mse_fn(preds, ctest)
 
         print(f"\nTrain loss = {train_loss:.3f}% - Test loss = {loss:.3f}")

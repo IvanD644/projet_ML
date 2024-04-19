@@ -81,7 +81,7 @@ class LogisticRegression(object):
             prob (array): the probability matrix of shape (N, C)
         """
         exp_dot_prod = np.exp(data @ self.weights)
-        exp_dot_prod_sum = np.sum(exp_dot_prod, axis = 0)
+        exp_dot_prod_sum = np.sum(exp_dot_prod, axis = 1).reshape(-1, 1)
         prob = exp_dot_prod / exp_dot_prod_sum
         return prob
     
@@ -91,7 +91,7 @@ class LogisticRegression(object):
 
         Arguments:
             data (array): training data of shape (N,D)
-            labels (array): the actual labels of shape (N, )
+            labels (array): the actual labels of shape (N, C)
             
         Returns:
             gradient (array): the gradient of shape (D, C)
