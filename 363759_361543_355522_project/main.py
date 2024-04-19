@@ -115,7 +115,6 @@ def main(args):
     return acc
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
 
-
 if __name__ == '__main__':
     # Definition of the arguments that can be given through the command line (terminal).
     # If an argument is not given, it will take its default value as defined below.
