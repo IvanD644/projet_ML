@@ -17,6 +17,7 @@ class LogisticRegression(object):
             lr (float): learning rate of the gradient descent
             max_iters (int): maximum number of iterations
         """
+        self.task_kind = "classification"
         self.lr = lr
         self.max_iters = max_iters
 

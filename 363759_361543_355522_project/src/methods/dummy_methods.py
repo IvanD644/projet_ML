@@ -21,6 +21,7 @@ class DummyClassifier(object):
         """
         # `self` means "myself" as in "the current object of the class"
         # Below, we store the value of arg1 and arg2 in self
+        self.task_kind = "classification"
         self.arg1 = arg1
         self.arg2 = arg2
         # We can then access them in any function of this class by using `self.arg1`, for example.

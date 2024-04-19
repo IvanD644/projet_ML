@@ -13,6 +13,7 @@ class LinearRegression(object):
             Initialize the task_kind (see dummy_methods.py)
             and call set_arguments function of this class.
         """
+        self.task_kind = "regression"
         self.lmda = lmda
         self.N = None
         self.D = None # D already counts the bias term
