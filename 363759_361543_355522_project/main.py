@@ -26,7 +26,7 @@ def main(args):
     if args.data_type == "features":
         feature_data = np.load('features.npz',allow_pickle=True)
         xtrain, xtest, ytrain, ytest, ctrain, ctest =feature_data['xtrain'],feature_data['xtest'],\
-        feature_data['ytrain'],feature_data['ytest'],feature_data['ctrain'],feature_data['ctest']
+        feature_data['ytrain'],feature_data['ytest'],feature_data['ctrain'],feature_data['ctest']        
 
     ##ORIGINAL IMAGE DATASET (MS2)
     elif args.data_type == "original":
@@ -111,8 +111,7 @@ def main(args):
         print(f"Test set:  accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
     else:
         raise Exception("Invalid choice of task! Only support center_locating and breed_identifying!")
-
-    return acc
+    
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
 
 if __name__ == '__main__':
