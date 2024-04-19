@@ -117,6 +117,7 @@ def main(args):
     else:
         raise Exception("Invalid choice of task! Only support center_locating and breed_identifying!")
 
+    return acc
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
 
 

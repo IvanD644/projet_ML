@@ -45,7 +45,6 @@ class KNN(object):
         """
         # TODO Vectorize predictors.
         def predict_classification(neighbours_labels):
-            print(neighbours_labels)
             return np.argmax(np.bincount(neighbours_labels))
         
         def predict_regression(neighbours_labels):
