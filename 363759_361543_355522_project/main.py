@@ -11,7 +11,6 @@ from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, m
 import os
 np.random.seed(100)
 
-
 def main(args):
     """
     The main function of the script. Do not hesitate to play with it
@@ -57,9 +56,14 @@ def main(args):
 
     # Make a validation set (it can overwrite xtest, ytest)
     if not args.test:
-        # TODO
-        pass
-    
+        validation_ratio = .3
+        validation_size = validation_ratio * xtest.shape[0]
+        xtest = xtrain[-validation_size:]
+        xtrain = xtrain[:-validation_size]
+        ytest = ytrain[-validation_size:]
+        ytrain = ytrain[:-validation_size]
+        ctest = ctrain[-validation_size:]
+        ctrain = ctrain[:-validation_size]    
     
     ## 3. Initialize the method you want to use.
 
