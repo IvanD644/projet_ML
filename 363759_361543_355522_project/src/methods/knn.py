@@ -44,10 +44,13 @@ class KNN(object):
         """
         # TODO Vectorize predictors.
         def predict_classification(neighbours_labels):
-            return np.argmax(np.bincount(neighbours_labels))
+            return np.array([
+                np.argmax(np.bincount(neighbours_labels[i]))
+                for i in range(test_data.shape[0])
+            ])
         
         def predict_regression(neighbours_labels):
-            return np.mean(neighbours_labels, axis=0)
+            return np.mean(neighbours_labels, axis=1)
         
         predict = \
             predict_classification if self.task_kind == "breed_identifying" \
@@ -55,30 +58,20 @@ class KNN(object):
         
         test_labels = \
             np.zeros(test_data.shape[0]) if self.task_kind == "breed_identifying" \
-            else np.zeros((test_data.shape[0], 2))
-        
-        for test_index, test_entry in enumerate(test_data):
-            distances = np.linalg.norm(
-                self.training_data - test_entry,
-                axis=1
-            )
-            distances_with_index = np.stack(
-                (distances, np.arange(0, distances.shape[0])),
-                axis=1
-            )
+            else np.zeros((test_data.shape[0], self.training_labels.shape[1]))
             
-            # Using a heap here has the best time complexity
-            # for extracting closest neighbours.
-            neighbours_indexes = np.array(
-                heapq.nsmallest(
-                    self.k,
-                    distances_with_index,
-                    key=lambda x : x[0]
-                ),
-                dtype="int"
-            )[:, 1]
-            neighbours_labels = self.training_labels[neighbours_indexes]
-            test_labels[test_index] = predict(neighbours_labels)
+        distances = np.linalg.norm(
+            np.expand_dims(self.training_data, 0) \
+            - np.expand_dims(test_data, 1),
+            axis=2
+        )
+        
+        neighbours_indexes = np.argpartition(distances, self.k, axis=1)[:, :self.k]
+        neighbours_labels = self.training_labels[neighbours_indexes]
+        test_labels = predict(neighbours_labels)
+
+        # for test_index in range(test_data.shape[0]):
+        #     test_labels[test_index] = predict(neighbours_labels[test_index])
             
         return test_labels
     
