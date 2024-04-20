@@ -1,6 +1,4 @@
 import argparse
-
-
 import numpy as np
 
 
@@ -27,15 +25,22 @@ def main(args):
         args (Namespace): arguments that were parsed from the command line (see at the end
                           of this file). Their value can be accessed as "args.argument".
     """
+    
     ## 1. First, we load our data and flatten the images into vectors
-
-
+    
+    # Check arguments
+    if args.optimize_K_range != 0 and args.method != "knn":
+        raise Exception("--optimize_K_range can only be used with knn")
+    
     ##EXTRACTED FEATURES DATASET
     if args.data_type == "features":
         feature_data = np.load('features.npz',allow_pickle=True)
-        xtrain, xtest, ytrain, ytest, ctrain, ctest =feature_data['xtrain'],feature_data['xtest'],\
-        feature_data['ytrain'],feature_data['ytest'],feature_data['ctrain'],feature_data['ctest']
-
+        xtrain = feature_data['xtrain']
+        xtest = feature_data['xtest']
+        ytrain = feature_data['ytrain']
+        ytest = feature_data['ytest']
+        ctrain = feature_data['ctrain']
+        ctest = feature_data['ctest']
 
     ##ORIGINAL IMAGE DATASET (MS2)
     elif args.data_type == "original":
@@ -43,22 +48,16 @@ def main(args):
         xtrain, xtest, ytrain, ytest, ctrain, ctest = load_data(data_dir)
 
 
-    ##TODO: ctrain and ctest are for regression task. (To be used for Linear Regression and KNN)
-    ##TODO: xtrain, xtest, ytrain, ytest are for classification task. (To be used for Logistic Regression and KNN)
-
-
     ## 2. Then we must prepare it. This is were you can create a validation set,
-    #  normalize, add bias, etc.
 
+    #  normalize, add bias, etc.
 
     # Normalization.
     xmeans, xstds = np.mean(xtrain, axis = 0), np.std(xtrain, axis = 0)
     xtrain, xtest = normalize_fn(xtrain, xmeans, xstds), normalize_fn(xtest, xmeans, xstds)
 
-
     # Bias term addition.
     xtrain, xtest = append_bias_term(xtrain), append_bias_term(xtest)
-
 
     # Make a validation set (it can overwrite xtest, ytest)
     if not args.test:
@@ -71,8 +70,8 @@ def main(args):
         ctest = ctrain[-validation_size:]
         ctrain = ctrain[:-validation_size]    
    
+   
     ## 3. Initialize the method you want to use.
-
 
     # Use NN (FOR MS2!)
     if args.method == "nn":
@@ -88,41 +87,30 @@ def main(args):
         method_obj = DummyClassifier(arg1=1, arg2=2)
     else:
         raise NotImplementedError()
-
-
+    
+    
     ## 4. Train and evaluate the method
 
-
-    if args.task == "center_locating":
-
-
-        # If trying to optimize of K in knn
-        if args.method == "knn" and args.optimize_K_range != 0:
-            validate_optimizing_for_K(xtrain, ctrain, xtest, ctest, args.optimize_K_range, args.task, method_obj)
-        else:
-            validate_center_locating(xtrain, ctrain, xtest, ctest, method_obj)
-
-
-
-
-    elif args.task == "breed_identifying":
-
-
-        # If trying to optimize of K in knn
-        if args.method == "knn" and args.optimize_K_range != 0:
-            validate_optimizing_for_K(xtrain, ytrain, xtest, ytest, args.optimize_K_range, args.task, method_obj)
-        else:
-            validate_breed_identifying(xtrain, ytrain, xtest, ytest, method_obj)
-
-
-
-
+    train_labels, test_labels = (ctrain, ctest) \
+        if args.task == "center_locating" \
+        else (ytrain, ytest)
+        
+    # If trying to optimize of K in knn
+    if args.method == "knn" and args.optimize_K_range != 0:
+        validate_optimizing_for_K(
+            xtrain, train_labels, xtest, test_labels,
+            args.optimize_K_range,
+            args.task,
+            method_obj
+        )
     else:
-        raise Exception("Invalid choice of task! Only support center_locating and breed_identifying!")
+        validate_center_locating(
+            xtrain, train_labels, xtest, test_labels,
+            method_obj
+        )
 
 
-    ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
-
+### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
 
 # Perform validation for center_locating task
 # This method is the same as the one in the original main.py, it remains untouched.
@@ -133,18 +121,14 @@ def validate_center_locating(xtrain, ctrain, xtest, ctest, method_obj):
     # Fit parameters on training data
     preds_train = method_obj.fit(xtrain, ctrain)
 
-
     # Perform inference for training and test data
     preds = method_obj.predict(xtest)
-
 
     ## Report results: performance on train and valid/test sets
     train_loss = mse_fn(preds_train, ctrain)
     loss = mse_fn(preds, ctest)
 
-
     print(f"\nTrain loss = {train_loss:.3f}% - Test loss = {loss:.3f}")
-
 
     return loss
 
@@ -152,33 +136,28 @@ def validate_center_locating(xtrain, ctrain, xtest, ctest, method_obj):
 # Perform validation for breed_identifying task.
 def validate_breed_identifying(xtrain, ytrain, xtest, ytest, method_obj):
 
-
     # Fit (:=train) the method on the training data for classification task
     preds_train = method_obj.fit(xtrain, ytrain)
 
-
     # Predict on unseen data
     preds = method_obj.predict(xtest)
-
 
     ## Report results: performance on train and valid/test sets
     acc = accuracy_fn(preds_train, ytrain)
     macrof1 = macrof1_fn(preds_train, ytrain)
     print(f"\nTrain set: accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
 
-
     acc = accuracy_fn(preds, ytest)
     macrof1 = macrof1_fn(preds, ytest)
     print(f"Test set:  accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
-
 
     return acc
 
 
 # Perform validation while optimizing for K.
-def validate_optimizing_for_K(xtrain, ytrain, xtest, ytest, optimize_K_range, task, method_obj):
-
-
+def validate_optimizing_for_K(
+    xtrain, ytrain, xtest, ytest, optimize_K_range, task, method_obj
+):
     '''
         Optimize the K parameter in knn.
         This method will iterate over k in [1, optimize_K_range]
@@ -195,8 +174,6 @@ def validate_optimizing_for_K(xtrain, ytrain, xtest, ytest, optimize_K_range, ta
             optimize_K_range: the range of K values that shall be tested for optimal value
             method_obj: the instance of the method used (will be modified)
     '''
-
-
     accuracies = {}
     for _ in range(1, optimize_K_range + 1):
        
@@ -219,7 +196,6 @@ def validate_optimizing_for_K(xtrain, ytrain, xtest, ytest, optimize_K_range, ta
     plt.grid(True)
     plt.plot([i + 1 for i in range(len(accuracies.values()))], accuracies.values())
     plt.show()
-   
 
 
 if __name__ == '__main__':
@@ -242,11 +218,9 @@ if __name__ == '__main__':
     # it works both on tasks.
     parser.add_argument('--optimize_K_range', type=int, default=0, help="display the optimal value of k in knn method for the task of breed indentifying")
 
-
     # MS2 arguments
     parser.add_argument('--nn_type', default="cnn", help="which network to use, can be 'Transformer' or 'cnn'")
     parser.add_argument('--nn_batch_size', type=int, default=64, help="batch size for NN training")
-
 
     # "args" will keep in memory the arguments and their values,
     # which can be accessed as "args.data", for example.
