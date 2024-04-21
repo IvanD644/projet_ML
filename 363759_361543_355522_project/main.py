@@ -180,24 +180,28 @@ def validate_optimizing_for_K(
             method_obj: the instance of the method used (will be modified)
     '''
     accuracies = {}
-    for _ in range(1, optimize_K_range + 1):
-       
+    for k in range(1, optimize_K_range + 1):
+
         if task == "center_locating":
             ctrain, ctest = ytrain, ytest
             accuracies[method_obj.k] = validate_center_locating(xtrain, ctrain, xtest, ctest, method_obj)
         else:
             accuracies[method_obj.k] = validate_breed_identifying(xtrain, ytrain, xtest, ytest, method_obj)
-       
-        args.K += 1
-        method_obj = KNN(args.K, args.task)
+        
+        method_obj = KNN(k, task)
    
     best_acc = max(accuracies.values())
     best_K = list(accuracies.keys())[list(accuracies.values()).index(best_acc)]
    
-    print(f"\nBest k = {best_K}, accuracy = {best_acc:.3f}%")
-    plt.title("Test accuracy - K")
+    if task == "center_locating":
+        print(f"\nBest k = {best_K}, loss = {best_acc:.3f}%")
+        plt.title("Test loss - K")
+        plt.ylabel("Test loss")
+    else:
+        print(f"\nBest k = {best_K}, accuracy = {best_acc:.3f}%")
+        plt.title("Test accuracy - K")
+        plt.ylabel("Test accuracy")
     plt.xlabel("K")
-    plt.ylabel("Test accuracy")
     plt.grid(True)
     plt.plot([i + 1 for i in range(len(accuracies.values()))], accuracies.values())
     plt.show()
