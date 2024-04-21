@@ -181,7 +181,6 @@ def validate_optimizing_for_K(
     '''
     accuracies = {}
     for k in range(1, optimize_K_range + 1):
-
         if task == "center_locating":
             ctrain, ctest = ytrain, ytest
             accuracies[method_obj.k] = validate_center_locating(xtrain, ctrain, xtest, ctest, method_obj)
@@ -190,14 +189,15 @@ def validate_optimizing_for_K(
         
         method_obj = KNN(k, task)
    
-    best_acc = max(accuracies.values())
-    best_K = list(accuracies.keys())[list(accuracies.values()).index(best_acc)]
-   
     if task == "center_locating":
-        print(f"\nBest k = {best_K}, loss = {best_acc:.3f}%")
+        best_loss = min(accuracies.values())
+        best_K = list(accuracies.keys())[list(accuracies.values()).index(best_loss)]
+        print(f"\nBest k = {best_K}, loss = {best_loss:.3f}%")
         plt.title("Test loss - K")
         plt.ylabel("Test loss")
     else:
+        best_acc = max(accuracies.values())
+        best_K = list(accuracies.keys())[list(accuracies.values()).index(best_acc)]
         print(f"\nBest k = {best_K}, accuracy = {best_acc:.3f}%")
         plt.title("Test accuracy - K")
         plt.ylabel("Test accuracy")
