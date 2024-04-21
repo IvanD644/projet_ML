@@ -128,7 +128,7 @@ def validate_center_locating(xtrain, ctrain, xtest, ctest, method_obj):
     train_loss = mse_fn(preds_train, ctrain)
     loss = mse_fn(preds, ctest)
 
-    print(f"\nTrain loss = {train_loss:.3f}% - Test loss = {loss:.3f}")
+    print(f"\nTrain loss = {train_loss:.3f} - Test loss = {loss:.3f}")
 
     return loss
 
