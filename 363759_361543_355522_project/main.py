@@ -94,20 +94,25 @@ def main(args):
     train_labels, test_labels = (ctrain, ctest) \
         if args.task == "center_locating" \
         else (ytrain, ytest)
-        
-    # If trying to optimize of K in knn
-    if args.method == "knn" and args.optimize_K_range != 0:
-        validate_optimizing_for_K(
-            xtrain, train_labels, xtest, test_labels,
-            args.optimize_K_range,
-            args.task,
-            method_obj
-        )
-    else:
-        validate_center_locating(
-            xtrain, train_labels, xtest, test_labels,
-            method_obj
-        )
+    
+    if args.method == "linear_regression":
+        validate_center_locating(xtrain, train_labels, xtest, test_labels, method_obj)
+    elif args.method == "logistic_regression":
+        validate_breed_identifying(xtrain, train_labels, xtest, test_labels, method_obj)
+    elif args.method == "knn":
+        # If trying to optimize k in K-NN
+        if  args.optimize_K_range != 0:
+            validate_optimizing_for_K(
+                xtrain, train_labels, xtest, test_labels,
+                args.optimize_K_range,
+                args.task,
+                method_obj
+            )
+        else:
+            if args.task == "breed_identifying":
+                validate_breed_identifying(xtrain, train_labels, xtest, test_labels, method_obj)
+            elif args.task == "center_locating":
+                validate_center_locating(xtrain, train_labels, xtest, test_labels, method_obj)
 
 
 ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
